@@ -1,0 +1,22 @@
+curl --location 'http://localhost:8082/v1/invoices?user_id=8a97e455-9511-4de2-b805-1ea5d82cc646'
+
+[
+    {
+        "invoiceId": "c57b80bb-1809-44dc-911f-e0480d39fd5d",
+        "invoiceNumber": "87",
+        "createdDate": "2024-08-14T18:04:45.775905",
+        "updatedDate": "2024-08-14T18:04:45.775905"
+    },
+    {
+        "invoiceId": "c57b80bb-1809-44dc-911f-e0480d39fd1d",
+        "invoiceNumber": "7676",
+        "createdDate": "2024-08-14T18:04:45.775905",
+        "updatedDate": "2024-08-14T18:04:45.775905"
+    },
+    {
+        "invoiceId": "c57b80bb-1809-44dc-911f-e0480d39fd12d",
+        "invoiceNumber": "545",
+        "createdDate": "2024-08-14T18:04:45.775905",
+        "updatedDate": "2024-08-14T18:04:45.775905"
+    }
+]

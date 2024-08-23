@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <springProperty scope = "context" name="logHost" source="logstash.host"/>
+    <springProperty scope = "context" name="logPort" source="logstash.port"/>
+
+    <include resource ="org/springframework/boot/logging/logback/defaults.xml" />
+    <include resource ="org/springframework/boot/logging/logback/console-appender.xml" />
+    <root level="INFO">
+        <appender-ref ref="LOGSTASH" />
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>${logHost}:${logPort}</destination>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+        <reconnectionDelay>10000</reconnectionDelay> <!-- 10 seconds -->
+
+        <includeMdcKeyName>traceId</includeMdcKeyName>
+        <includeMdcKeyName>spanId</includeMdcKeyName>
+    </appender>
+
+</configuration>

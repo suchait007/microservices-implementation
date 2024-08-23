@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: product-service
+  kafka:
+    consumer:
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      group-id: products-consumers
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: com.retail.api.gateway.dto
+
+    properties:
+      spring:
+        json:
+          value:
+            default:
+              type: com.retail.api.gateway.dto.ProductRequest
+    template:
+      default-topic: new-products
+    bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    out-of-order: true
+    default-schema: product_db
+    locations:
+      - classpath:db/migration
+
+    sleuth:
+      propagation:
+        type: w3c,b3
+
+server:
+  port: 8084
+
+management:
+  metrics:
+    tags:
+      application: invoice-service
+  tracing:
+    propagation:
+      consume: W3C
+  endpoint:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+
+logstash:
+  host: localhost
+  port: 50000
+
+kafka:
+  topic:
+    products: new-products

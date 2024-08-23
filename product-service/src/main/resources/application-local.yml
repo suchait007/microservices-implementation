@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/citizix_db
+    username: citizix_user
+    password: S3cret
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect

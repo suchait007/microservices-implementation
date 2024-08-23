@@ -1,0 +1,41 @@
+spring:
+  security:
+    oauth2:
+      resource-server:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/retail
+  cloud:
+    gateway:
+      routes[0]:
+        id: user-service-route
+        uri: http://localhost:8081
+        predicates:
+          - Path=/user-service/v1/users
+        filters:
+          - RewritePath=/user-service/v1/users, /v1/users
+          - name: CircuitBreaker
+            args:
+              name: userServiceCircuitBreaker
+              fallbackUri: forward:/fallback
+      routes[1]:
+        id: invoice-service-route
+        uri: http://localhost:8083
+        predicates:
+          - Path=/invoice-service/v1/invoices/**
+        filters:
+          - RewritePath=/invoice-service/v1/invoices, /v1/invoices
+          - name: CircuitBreaker
+            args:
+              name: invoiceServiceCircuitBreaker
+              fallbackUri: forward:/fallback
+
+
+
+
+security:
+  jwt: http://localhost:8080/realms/retail/protocol/openid-connect/certs
+
+
+logstash:
+  host: localhost
+  port: 50000

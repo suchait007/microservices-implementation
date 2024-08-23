@@ -1,0 +1,135 @@
+spring:
+  application:
+    name: api-gateway
+  kafka:
+    properties:
+      spring:
+        json:
+          value:
+            default:
+              type: com.retail.api.gateway.dto.ProductRequest
+    template:
+      default-topic: new-products
+    bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  main:
+    allow-bean-definition-overriding: true
+  security:
+    oauth2:
+      resource-server:
+        jwt:
+          issuer-uri: http://keycloak-access-mgmt:8080/auth/realms/retail
+  cloud:
+    gateway:
+      routes[0]:
+        id: user-service-route
+        uri: http://user-service:8081
+        predicates:
+          - Path=/user-service/v1/users
+        filters:
+          - RewritePath=/user-service/v1/users, /v1/users
+          - name: CircuitBreaker
+            args:
+              name: userServiceCircuitBreaker
+              fallbackUri: forward:/fallback
+          #- name: Bulkhead
+           # args:
+            #  name: userServiceBulkhead
+             # fallbackUri: forward:/bulkheadfallback
+
+      routes[1]:
+        id: invoice-service-route
+        uri: http://invoice-service:8083
+        predicates:
+          - Path=/invoice-service/v1/invoices/**
+        filters:
+          - RewritePath=/invoice-service/v1/invoices, /v1/invoices
+          - name: CircuitBreaker
+            args:
+              name: invoiceServiceCircuitBreaker
+              fallbackUri: forward:/fallback
+
+      routes[2]:
+        id: product-service-route
+        uri: http://product-service:8084
+        predicates:
+          - Path=/product-service/v1/products/**
+        filters:
+          - RewritePath=/product-service/v1/products, /v1/products
+          - name: CircuitBreaker
+            args:
+              name: productServiceCircuitBreaker
+              fallbackUri: forward:/fallback
+
+server:
+  port: 9001
+
+management:
+  tracing:
+    propagation:
+      consume: W3C
+  metrics:
+    tags:
+      application: api-gateway
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+    gateway:
+      enabled: true
+  info:
+    env:
+      enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      userServiceCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 5
+        waitDurationInOpenState: 10000
+        failureRateThreshold: 50
+      invoiceServiceCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 5
+        waitDurationInOpenState: 10000
+        failureRateThreshold: 50
+      productServiceCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 5
+        waitDurationInOpenState: 10000
+        failureRateThreshold: 50
+  #bulkhead:
+   # instances:
+    #  userServiceBulkhead:
+     #   maxConcurrentCalls: 10
+      #  maxWaitDuration: 500ms
+
+
+security:
+  jwt: http://keycloak-access-mgmt:8080/auth/realms/retail/protocol/openid-connect/certs
+
+
+logstash:
+  host: localhost
+  port: 50000
+
+
+kafka:
+  topic:
+    products: new-products
+
+logging:
+  level:
+    org.springframework.retry: DEBUG
+    org.springframework.retry.annotation: DEBUG
+    org.springframework.kafka: DEBUG

@@ -1,0 +1,9 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://keycloak-access-mgmt:8080/auth/realms/retail
+
+security:
+  jwt: http://keycloak-access-mgmt:8080/auth/realms/retail/protocol/openid-connect/certs

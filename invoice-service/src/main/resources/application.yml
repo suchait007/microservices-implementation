@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: invoice-service
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    out-of-order: true
+    default-schema: invoice_db
+    locations:
+      - classpath:db/migration
+
+  sleuth:
+    propagation:
+      type: w3c,b3
+
+server:
+  port: 8083
+
+management:
+  metrics:
+    tags:
+      application: invoice-service
+  tracing:
+    propagation:
+      consume: W3C
+  endpoint:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+
+logstash:
+  host: localhost
+  port: 50000
+
+product:
+  service:
+    url: http://localhost:8084
